@@ -805,7 +805,7 @@ def game_loop():
             # increase the turn number
             turn += 1
             # natural deterioration of hunger
-            hunger -= 2
+            hunger -= 1
             # lose health when starving
             if hunger <= 0:
                 hunger = 0
