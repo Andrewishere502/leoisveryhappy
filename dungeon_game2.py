@@ -1,3 +1,4 @@
+
 import os
 import random
 import time
@@ -76,33 +77,6 @@ def set_grid(SIZE):
             y += 1
             continue
         x += 1
-def draw_map2(monster1, monster2, monster3, shop1, player, SIZE):
-    print((Fore.WHITE+" _"+Style.RESET_ALL)*(SIZE+1))
-    tile = Fore.WHITE+"|"+Style.RESET_ALL+"{}"
-    for cell in CELLS:
-        x, y = cell
-        if x < SIZE:
-            line_end = ""
-            if cell == player:
-                output = tile.format(Fore.GREEN+"X"+Style.RESET_ALL)
-            elif (cell == monster1) or (cell == monster2) or (cell == monster3):
-                output = tile.format(Fore.RED+"M"+Style.RESET_ALL)
-            elif (cell == shop1):
-                output = tile.format(Fore.LIGHTYELLOW_EX+"S"+Style.RESET_ALL)
-        else:
-            line_end = "\n"
-            if cell == player:
-                output = tile.format(Fore.GREEN+"X"+Fore.YELLOW+"|"+Style.RESET_ALL)
-            elif (cell == monster1) or (cell == monster2) or (cell == monster3):
-                output = tile.format(Fore.RED+"M"+Style.RESET_ALL)
-            elif (cell == shop1):
-                output = tile.format(Fore.LIGHTYELLOW_EX+"S"+Style.RESET_ALL)
-            print(output, end=line_end)
-        print("-"*2*SIZE+"---")
-
-            
-            
-
 def draw_map(portal1, monster1, monster2, monster3, potato_farm, mysterious1, mysterious2, shop1, casino1, chest1, chest2, chest3, berries1, berries2, berries3, player, SIZE):
     # list_of_letters = [" A", " B", " C", " D", " E", " F", " G", " H", " I", " J", " K", " L", " M", " N", " O", " P", " Q", " R", " S", " T", " U", " V" ," W", " X", " Y", " Z"]
     # print(Fore.YELLOW+" A B C D E F G H I J K L M N O P Q R S T U V W X Y Z"+Style.RESET_ALL)
@@ -311,7 +285,7 @@ def print_title():
                                                                  gggggg                                                              
     """)
     input("Press return to start:")
-def print_death(turn, health, hunger, gold, kills, fashion):
+def print_death(turn, health, hunger, gold, kills, level):
     print("""
                                                                 
                                                                 
@@ -334,7 +308,7 @@ def print_death(turn, health, hunger, gold, kills, fashion):
                                                             
                 You have died. Game over.
         """)
-    print("Turn: {} | Health: {} | Hunger: {} | Gold: {} | Kills: {} | Fashion: {} ".format(turn, health, hunger, gold, kills, fashion))
+    print("Turn: {} | Health: {} | Hunger: {} | Gold: {} | Kills: {} | Level: {} ".format(turn, health, hunger, gold, kills, level))
     print("-"*2*SIZE+"---")
 def print_UI(turn, health, hunger, armour, gold):
     if hunger <= 10:
@@ -467,8 +441,8 @@ def game_loop():
     armour = 0
     max_armour = 100
     gold = 10
-    fashion = 0
     kills = 0
+    level = 1
 
     # define basic monster stats
     monster_max_health = 25
@@ -485,14 +459,14 @@ def game_loop():
 
     # lists of items
     misc = [{
-        "name":"Knife",
+        "name":"Gold",
+        "value":random.randint(10,50)
+        },{
+        "name":"Key",
         "durability":1,
         "effect":10,
         "value":15,
         "type":"weapon"
-        },{
-        "name":"Gold",
-        "value":random.randint(10,50)
         }]
     foods = [{
         "name":"Potato",
@@ -532,6 +506,12 @@ def game_loop():
         "value":35,
         "type":"weapon"
         },{
+        "name":"Knife",
+        "durability":1,
+        "effect":10,
+        "value":15,
+        "type":"weapon"
+        },{
         "name":"Shield",
         "durability":3,
         "effect":2,
@@ -565,10 +545,10 @@ def game_loop():
     magic = [{
         "name":"Magic potato",
         "durability":1,
-        "effect":"100",
-        "value":"100",
+        "effect":100,
+        "value":100,
         "type":"magic"
-        }]
+        },{}]
     clothes = [{
         "name":"Baseball cap",
         "durability":1,
@@ -647,8 +627,6 @@ def game_loop():
     items_in_chest2.append(random.choice(clothes))
     items_in_chest3 = random.sample(foods, 2)
     items_in_chest3.append(random.choice(clothes))
-    
-    
     
     # generate random mysterious events for the mysterious tiles
     generate_mysterious_event = ["gold", "dead body", "ambush"]
@@ -829,7 +807,6 @@ def game_loop():
                         if durability <= 0:
                             message = (Fore.BLUE+"You finished the {}. +{} hunger. +{} health".format(item.get("name"), item.get("effect"), item.get ("effect"))+Style.RESET_ALL)
                             break
-
         elif move in valid_moves:
             # update where the player is
             player, message, health = move_player(default_message, health, max_health, player, move)
@@ -861,6 +838,7 @@ def game_loop():
                 if player == berries3:
                     berries3 = None
                 message = Fore.BLUE + "You ate some berries, +15 hunger." + Style.RESET_ALL
+
 
         #
         # chest and inventory management area
@@ -1026,8 +1004,6 @@ def game_loop():
         #
         # shop area
         #
-          
-
             if (player == shop1):
                 message = Fore.GREEN+"You entered the shop!"+Style.RESET_ALL
                 while True:
@@ -1424,7 +1400,6 @@ def game_loop():
                             "value":125,
                             "type":"clothing"
                             }
-                            fashion += 3
                         elif name_tag == "Ben":
                             item_on_body = {
                             "name":"Baseball cap",
@@ -1618,7 +1593,6 @@ def game_loop():
                             "value":125,
                             "type":"clothing"
                             }
-                            fashion += 3
                         elif name_tag == "Ben":
                             item_on_body = {
                             "name":"Baseball bat",
@@ -2216,7 +2190,11 @@ def game_loop():
                         message = Fore.RED + "The monster claws you. -{} health, -{} armour.".format(monster_damage, original_armour - armour) + Style.RESET_ALL
                         # exit monsters turn
                         break
+
+
+        #
         # portal
+        #
             if (player == portal1):
                 print("You found a portal.")
                 while True:
@@ -2234,15 +2212,24 @@ def game_loop():
                     print_UI(turn, health, hunger, armour, gold)
                     return_message(message, SIZE)
                     print("Portal:")
-                    print("Would you like to go through the portal? You cannot come back to this stage. y/n")    
+                    print("Would you like to go through the portal? You cannot come back to this stage.")    
                     confirm_teleport = input("(y/n)\n> ").lower()
                     if confirm_teleport == "y":
                         message = Fore.MAGENTA+"You went through the portal!"+Style.RESET_ALL
                         portal1, monster1_spawn, monster2_spawn, monster3_spawn, potato_farm, mysterious1, mysterious2, shop1, casino1, chest1, chest2, chest3, berries1, berries2, berries3, player = get_locations()
+                        items_in_chest1 = random.sample(misc, 2)
+                        items_in_chest1.append(random.choice(clothes))
+                        items_in_chest2 = random.sample(tools, 1)
+                        items_in_chest2.append(random.choice(clothes))
+                        items_in_chest3 = random.sample(foods, 2)
+                        items_in_chest3.append(random.choice(clothes))
+                        monster_max_health += 5
+                        level += 1
                         break
                     else:
                         message = Fore.RED+"You did not go through the portal."+Style.RESET_ALL
                         break
+
 
         #
         # death management area
@@ -2251,7 +2238,7 @@ def game_loop():
             if health <= 0:
                 playing = False
                 clear_screen()
-                print_death(turn, health, hunger, gold, kills, fashion)
+                print_death(turn, health, hunger, gold, kills, level)
 
 
         # error message if the player makes a move that is not valid
